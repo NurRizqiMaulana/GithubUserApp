@@ -1,0 +1,15 @@
+<resources>
+    <string name="app_name">GithubUserApp</string>
+    <string name="name">Name</string>
+    <string name="username">username</string>
+    <string name="bio">Bio</string>
+    <string name="location">Location</string>
+    <string name="repositories">Repositories</string>
+    <string name="followers">100 Followers</string>
+    <string name="following">100 Following</string>
+    <string name="tab_text_1">FOLLOWER</string>
+    <string name="tab_text_2">FOLLOWING</string>
+    <string name="searchbar_hint">Masukkan kata</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+</resources>
