@@ -1,7 +1,10 @@
 package com.dicoding.githubuserapp.ui.detail
 
+import android.content.Intent
 import android.os.Build
 import android.os.Bundle
+import android.view.Menu
+import android.view.MenuItem
 import android.view.View
 import androidx.activity.viewModels
 import androidx.annotation.StringRes
@@ -9,16 +12,22 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.viewpager2.widget.ViewPager2
 import com.bumptech.glide.Glide
 import com.dicoding.githubuserapp.R
+import com.dicoding.githubuserapp.data.database.UserFavorite
 import com.dicoding.githubuserapp.data.response.DetailResponseUsers
 import com.dicoding.githubuserapp.data.response.ItemsItem
 import com.dicoding.githubuserapp.databinding.ActivityDetailBinding
+import com.dicoding.githubuserapp.ui.favorite.FavoriteActivity
+import com.dicoding.githubuserapp.ui.favorite.FavoriteViewModelFactory
+import com.dicoding.githubuserapp.ui.setting.SettingActivity
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 
 class DetailActivity : AppCompatActivity() {
     private lateinit var binding: ActivityDetailBinding
+    private val detailViewModel by viewModels<DetailViewModel> {
+        FavoriteViewModelFactory.getInstance(application)
+    }
 
-    private val detailViewModel by viewModels<DetailViewModel>()
     companion object {
         @StringRes
         private val TAB_TITLES = intArrayOf(
@@ -67,6 +76,7 @@ class DetailActivity : AppCompatActivity() {
         detailViewModel.user.observe(this) {
             if (it != null) {
                 setUserData(it)
+                setUserFavorite(it)
             }
         }
     }
@@ -76,18 +86,65 @@ class DetailActivity : AppCompatActivity() {
 
     private fun setUserData(user: DetailResponseUsers) {
         binding.apply {
+            Glide.with(this@DetailActivity)
+                .load(user.avatarUrl)
+                .into(imgUserDetail)
             tvNameDetail.text=user.name
             tvUsernameDetail.text=user.login
             tvFollowers.text=user.followers.toString()
             tvFollowing.text=user.following.toString()
             tvRepository.text=user.publicRepos.toString()
-            Glide.with(this@DetailActivity)
-                .load(user.avatarUrl)
-                .into(imgUserDetail)
         }
     }
-    override fun onSupportNavigateUp(): Boolean {
-        onBackPressed()
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        val inflater = menuInflater
+        inflater.inflate(R.menu.main_menu, menu)
         return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+
+            R.id.menu_setting -> {
+                val intent = Intent(this, SettingActivity::class.java)
+                startActivity(intent)
+                true
+            }
+            R.id.menu_favorite -> {
+                val intent = Intent(this, FavoriteActivity::class.java)
+                startActivity(intent)
+                true
+            }
+            android.R.id.home -> {
+                onBackPressed()
+                true
+            }
+            else -> true
+        }
+    }
+
+    private fun setUserFavorite(user: DetailResponseUsers) {
+        detailViewModel.getFavoriteUserByUsername(user.login ?: "").observe(this) {
+            val favoriteUser = UserFavorite(user.login ?: "", user.avatarUrl)
+            var isFavorite = false
+
+            if (it != null) {
+                isFavorite = true
+                binding.fabFavorite.setImageResource(R.drawable.ic_favorite)
+            }
+
+            binding.fabFavorite.setOnClickListener {
+                if (!isFavorite) {
+                    detailViewModel.insert(favoriteUser)
+                    isFavorite = true
+                    binding.fabFavorite.setImageResource(R.drawable.ic_favorite)
+                } else {
+                    detailViewModel.delete(favoriteUser.login)
+                    isFavorite = false
+                    binding.fabFavorite.setImageResource(R.drawable.ic_favorite_border)
+                }
+            }
+        }
     }
 }

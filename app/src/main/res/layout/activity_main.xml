@@ -7,6 +7,7 @@
     tools:context=".ui.main.MainActivity">
     <com.google.android.material.search.SearchBar
         android:id="@+id/searchBar"
+
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="@string/searchbar_hint"
@@ -17,6 +18,7 @@
 
     <com.google.android.material.search.SearchView
         android:id="@+id/searchView"
+        android:backgroundTint="@color/orange"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:hint="@string/searchbar_hint"
